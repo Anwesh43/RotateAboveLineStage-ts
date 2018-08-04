@@ -71,3 +71,27 @@ class Animator {
         }
     }
 }
+
+const nodes : number = 5
+
+const drawRALNode = (context, i : number, scale : number) => {
+    const deg : number = (2 * Math.PI) / nodes
+    const size : number = Math.min(w, h) / 3
+    const index : number = i % 2
+    const sc1 = Math.min(0.5, scale) * 2
+    const sc2 : number = Math.min(0.5, Math.max(0.5, scale - 0.5)) * 2
+    const scale2 = (1 - index) * sc1 + (1 - sc1) * index
+    context.save()
+    context.rotate(deg)
+    for(var j = 0; j < 2; j++) {
+        context.save()
+        context.translate(size/2, 0)
+        context.rotate(Math.PI * scale2 * j)
+        context.beginPath()
+        context.moveTo(-size/2, 0)
+        context.lineTo(0, 0)
+        context.stroke()
+        context.restore()
+    }
+    context.restore()
+}
