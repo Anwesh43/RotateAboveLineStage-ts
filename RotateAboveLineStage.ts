@@ -142,6 +142,9 @@ class LinkedRAL {
     dir : number = 1
 
     draw(context : CanvasRenderingContext2D) {
+        context.strokeStyle = 'orange'
+        context.lineWidth = Math.min(w, h) / 60
+        context.lineCap = 'round'
         this.curr.draw(context)
     }
 
