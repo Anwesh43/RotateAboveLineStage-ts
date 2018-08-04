@@ -12,6 +12,7 @@ class RotateAboveLineStage {
         this.canvas.width = w
         this.canvas.height = h
         this.context = this.canvas.getContext('2d')
+        document.body.appendChild(this.canvas)
     }
 
     render() {
@@ -27,6 +28,7 @@ class RotateAboveLineStage {
                     this.render()
                     this.lral.update(() => {
                         this.animator.stop()
+                        this.render()
                     })
                 })
             })
@@ -47,9 +49,12 @@ class State {
 
     update(cb : Function) {
         this.scale += 0.05 * this.dir
-        this.dir = 0
-        this.prevScale = this.scale
-        cb()
+        if (Math.abs(this.scale - this.prevScale) > 1) {
+            this.scale = this.prevScale + this.dir
+            this.dir = 0
+            this.prevScale = this.scale
+            cb()
+        }
     }
 
     startUpdating(cb : Function) {
@@ -88,14 +93,14 @@ const drawRALNode = (context, i : number, scale : number) => {
     const size : number = Math.min(w, h) / 3
     const index : number = i % 2
     const sc1 = Math.min(0.5, scale) * 2
-    const sc2 : number = Math.min(0.5, Math.max(0.5, scale - 0.5)) * 2
+    const sc2 : number = Math.min(0.5, Math.max(0, scale - 0.5)) * 2
     const scale2 = (1 - index) * sc1 + (1 - sc1) * index
     context.save()
-    context.rotate(deg)
+    context.rotate(i * deg + deg * sc2)
     for(var j = 0; j < 2; j++) {
         context.save()
         context.translate(size/2, 0)
-        context.rotate(Math.PI * scale2 * j)
+        context.rotate(-Math.PI * scale2 * j)
         context.beginPath()
         context.moveTo(-size/2, 0)
         context.lineTo(0, 0)
@@ -123,6 +128,9 @@ class RALNode {
 
     draw(context : CanvasRenderingContext2D) {
         drawRALNode(context, this.i, this.state.scale)
+        if (this.next) {
+            this.next.draw(context)
+        }
     }
 
     update(cb : Function) {
@@ -139,7 +147,7 @@ class RALNode {
             curr = this.next
         }
         if (curr) {
-            return this
+            return curr
         }
         cb()
         return this
@@ -154,7 +162,10 @@ class LinkedRAL {
         context.strokeStyle = 'orange'
         context.lineWidth = Math.min(w, h) / 60
         context.lineCap = 'round'
+        context.save()
+        context.translate(w/2, h/2)
         this.curr.draw(context)
+        context.restore()
     }
 
     update(cb : Function) {
