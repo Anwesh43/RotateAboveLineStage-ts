@@ -2,7 +2,8 @@ const w : number = window.innerWidth, h : number = window.innerHeight
 class RotateAboveLineStage {
     canvas : HTMLCanvasElement = document.createElement('canvas')
     context : CanvasRenderingContext2D
-
+    lral : LinkedRAL = new LinkedRAL()
+    animator : Animator = new Animator()
     constructor() {
         this.initCanvas()
     }
@@ -16,11 +17,19 @@ class RotateAboveLineStage {
     render() {
         this.context.fillStyle = '#212121'
         this.context.fillRect(0, 0, w, h)
+        this.lral.draw(this.context)
     }
 
     handleTap() {
         this.canvas.onmousedown = () => {
-
+            this.lral.startUpdating(() => {
+                this.animator.start(() => {
+                    this.render()
+                    this.lral.update(() => {
+                        this.animator.stop()
+                    })
+                })
+            })
         }
     }
 
